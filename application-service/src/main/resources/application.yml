@@ -1,0 +1,37 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: application-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/loan_application}
+    username: ${DB_USER:loan}
+    password: ${DB_PASSWORD:loan}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  tracing:
+    sampling:
+      probability: 1.0

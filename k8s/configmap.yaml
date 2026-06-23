@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loan-platform-config
+  namespace: loan-origination
+data:
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  REDIS_HOST: redis
+  EUREKA_URI: http://service-discovery:8761/eureka
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+  DB_USER: loan
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: loan-platform-secrets
+  namespace: loan-origination
+type: Opaque
+stringData:
+  DB_PASSWORD: loan

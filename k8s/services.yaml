@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-discovery
+  namespace: loan-origination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-discovery
+  template:
+    metadata:
+      labels:
+        app: service-discovery
+    spec:
+      containers:
+        - name: service-discovery
+          image: ghcr.io/example/distributed-loan-origination/service-discovery:latest
+          ports:
+            - containerPort: 8761
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8761
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-discovery
+  namespace: loan-origination
+spec:
+  selector:
+    app: service-discovery
+  ports:
+    - port: 8761
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: loan-origination
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: ghcr.io/example/distributed-loan-origination/api-gateway:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: loan-platform-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: loan-origination
+spec:
+  type: LoadBalancer
+  selector:
+    app: api-gateway
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-service
+  namespace: loan-origination
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: application-service
+  template:
+    metadata:
+      labels:
+        app: application-service
+    spec:
+      containers:
+        - name: application-service
+          image: ghcr.io/example/distributed-loan-origination/application-service:latest
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: loan-platform-config
+            - secretRef:
+                name: loan-platform-secrets
+          env:
+            - name: DB_URL
+              value: jdbc:postgresql://postgres:5432/loan_application
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-service
+  namespace: loan-origination
+spec:
+  selector:
+    app: application-service
+  ports:
+    - port: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: approval-service
+  namespace: loan-origination
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: approval-service
+  template:
+    metadata:
+      labels:
+        app: approval-service
+    spec:
+      containers:
+        - name: approval-service
+          image: ghcr.io/example/distributed-loan-origination/approval-service:latest
+          ports:
+            - containerPort: 8086
+          envFrom:
+            - configMapRef:
+                name: loan-platform-config
+            - secretRef:
+                name: loan-platform-secrets
+          env:
+            - name: DB_URL
+              value: jdbc:postgresql://postgres:5432/loan_approval
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: approval-service
+  namespace: loan-origination
+spec:
+  selector:
+    app: approval-service
+  ports:
+    - port: 8086
