@@ -43,7 +43,7 @@ docker compose up --build
 Submit a loan application through the gateway:
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/applications \
+curl -X POST http://localhost:18080/api/v1/applications \
   -H "Content-Type: application/json" \
   -d '{
     "customerId": "CUST-1001",
@@ -58,14 +58,23 @@ curl -X POST http://localhost:8080/api/v1/applications \
 Query the application:
 
 ```bash
-curl http://localhost:8080/api/v1/applications/{applicationId}
+curl http://localhost:18080/api/v1/applications/{applicationId}
 ```
 
 Query approval:
 
 ```bash
-curl http://localhost:8080/api/v1/approvals/{applicationId}
+curl http://localhost:18080/api/v1/approvals/{applicationId}
 ```
+
+Default host ports are chosen to avoid collisions with the other banking demos:
+
+- API Gateway: `http://localhost:18080`
+- Eureka: `http://localhost:18761`
+- Kafka: `localhost:29092`
+- PostgreSQL: `localhost:15432`
+- Redis: `localhost:26379`
+- OpenTelemetry: `localhost:24317`, `localhost:24318`, and `localhost:28889`
 
 ## Deploy to Kubernetes
 
