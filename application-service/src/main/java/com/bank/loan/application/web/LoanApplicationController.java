@@ -32,7 +32,7 @@ public class LoanApplicationController {
     }
 
     @GetMapping("/{applicationId}")
-    public Object get(@PathVariable String applicationId) {
+    public Object get(@PathVariable("applicationId") String applicationId) {
         return repository.findById(applicationId).orElseThrow();
     }
 }

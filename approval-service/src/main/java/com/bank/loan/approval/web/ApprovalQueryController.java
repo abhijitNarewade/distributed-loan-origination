@@ -16,7 +16,15 @@ public class ApprovalQueryController {
     }
 
     @GetMapping("/{applicationId}")
-    public Object get(@PathVariable String applicationId) {
-        return repository.findById(applicationId).orElseThrow();
+    public Object get(@PathVariable("applicationId") String applicationId) {
+        return repository.findById(applicationId)
+                .map(decision -> (Object) decision)
+                .orElseGet(() -> new PendingApprovalResponse(
+                        applicationId,
+                        "PENDING_UNDERWRITING",
+                        "Approval decision is not available yet. The loan saga may still be processing."));
+    }
+
+    private record PendingApprovalResponse(String applicationId, String status, String message) {
     }
 }
